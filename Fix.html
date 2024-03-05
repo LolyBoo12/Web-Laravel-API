@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <!-- Pengaturan metadata -->
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Form Pencarian</title>
+
+   <!-- Menambahkan tautan CSS dari Bootstrap -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+   <!-- Gaya halaman -->
+   <style>
+      body {
+         font-family: Arial, sans-serif;
+      }
+
+      .header {
+         background-color: #f8f9fa;
+         padding: 20px;
+         text-align: center;
+      }
+
+      .sticky-top {
+         position: -webkit-sticky;
+         position: sticky;
+         top: 0;
+         z-index: 1000;
+      }
+
+      .container {
+         margin: 0 auto;
+         max-width: 960px;
+         padding: 20px;
+      }
+
+      .search-box {
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         margin-top: 20px;
+      }
+
+      .search-box input[type="text"] {
+         width: 300px;
+         padding: 10px;
+         border: 1px solid #ccc;
+      }
+
+      .search-box button {
+         padding: 10px;
+         margin-left: 10px;
+         background-color: #4CAF50;
+         color: rgb(123, 113, 113);
+         border: none;
+         cursor: pointer;
+      }
+
+      .image-box {
+         margin-top: 20px;
+         display: flex;
+         flex-wrap: wrap;
+         justify-content: space-around;
+      }
+
+      .image-box img {
+         width: 200px;
+         height: 200px; 
+         object-fit: cover; 
+         margin-bottom: 20px;
+         cursor: pointer;
+         transition: transform 0.3s ease-in-out;
+      }
+
+      .image-box img:hover {
+         transform: scale(1.1);
+      }
+
+      .result-box {
+         margin-top: 20px;
+         display: flex;
+         flex-wrap: wrap;
+         justify-content: space-around;
+      }
+
+      .result-item {
+         margin: 10px;
+         padding: 10px;
+         border: 1px solid #ccc;
+         border-radius: 10px;
+         width: calc(25% - 20px); 
+         text-align: center;
+      }
+
+      .result-item img {
+         width: 100%;
+         height: 150px; 
+         object-fit: cover; 
+         border-radius: 5px;
+         margin-bottom: 10px;
+      }
+
+      .description {
+         margin-top: 10px;
+      }
+
+      /* Gaya sidebar */
+      .sidebar {
+         height: 100%;
+         width: 250px;
+         position: fixed;
+         z-index: 1;
+         top: 0;
+         left: 0px; /* Sidebar muncul di awal */
+         background-color: rgba(48, 47, 47, 0.9); /* tingkat transparansi */
+         padding-top: 20px;
+         color: #ddd;
+         text-align: center;
+         transition: 0.5s; /* Efek transisi ketika sidebar ditampilkan atau disembunyikan */
+      }
+
+      .sidebar a {
+         padding: 16px;
+         text-decoration: none;
+         font-size: 18px;
+         color: white;
+         display: block;
+      }
+
+      .sidebar a:hover {
+         background-color: #4CAF50;
+         color: white;
+      }
+
+      /* tombol munculkan sidebar di bawah */
+      .toggle-sidebar-btn {
+         position: fixed;
+         bottom: 20px;
+         left: 20px;
+         padding: 10px;
+         background-color: #4CAF50;
+         color: white;
+         border: none;
+         cursor: pointer;
+         z-index: 2;
+      }
+
+      .image-item {
+        box-sizing: border-box;
+        width: 200px;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: center;
+     }
+
+     .image-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+     }
+
+     h2,
+     p {
+        margin: 0;
+     }
+
+     /* Gaya untuk nonaktifkan image-box saat pencarian dilakukan */
+     .image-box-disabled {
+        display: none;
+     }
+
+     /* untuk aktifkan kembali image-box */
+     .image-box-enabled {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+     }
+   </style>
+</head>
+
+<body>
+
+   <!-- Navbar atas -->
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+      <div class="container-fluid">
+         <!-- Tombol toggler untuk menu responsif -->
+         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+         </button>
+         <!-- Daftar navigasi -->
+         <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+               <li class="nav-item">
+                  <a class="nav-link" href="#" onclick="resetPage()">J Art</a>
+               </li>
+               <!-- Tambahkan item navbar lainnya sesuai kebutuhan -->
+            </ul>
+
+            <!-- Kotak pencarian di navbar -->
+            <div class="search-box mx-auto">
+               <input type="text" id="searchQuery" name="query" placeholder="Cari disini..." class="form-control">
+               <button type="button" id="searchButton" class="btn btn-primary">Cari</button>
+            </div>
+
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                 <a class="nav-link" href="#">Akun</a>
+              </li>
+              <!-- Tambahkan item navbar lainnya sesuai kebutuhan -->
+           </ul>
+         </div>
+      </div>
+   </nav>
+
+   <!-- Tombol munculkan sidebar di bawah -->
+   <button class="toggle-sidebar-btn" onclick="toggleSidebar()"></button>
+
+   <!-- Sidebar -->
+   <div class="sidebar" id="mySidebar">
+      <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">×</a>
+      <a href="#">Illustration</a>
+      <a href="#">Novels</a>
+      <!-- Tambahkan item sidebar lainnya sesuai kebutuhan -->
+   </div>
+
+   <!-- Isi halaman utama -->
+   <div class="container">
+      
+      <div class="image-box image-box-enabled" id="imageBox">
+         <!-- Gambar akan ditambahkan secara dinamis di sini -->
+         <div class="image-item">
+            <img src="https://i.pinimg.com/236x/8d/f6/4c/8df64cf2c727df22aa0fe4c70db4e4b1.jpg" alt="Contoh Gambar 1">
+            <h2>Mondstad</h2>
+            <p><strong>Pembuat:</strong> Himut</p>
+         </div>
+         <div class="image-item">
+            <img src="https://i.pinimg.com/564x/13/04/d4/1304d46c80679fec10fde639c5090c56.jpg" alt="Contoh Gambar 2">
+            <h2>Bridge</h2>
+            <p><strong>Pembuat:</strong>Tantei</p>
+         </div>
+         <div class="image-item">
+            <img src="https://i.pinimg.com/564x/ad/ed/83/aded83ee1ad9bdcd91c4b85be7afca48.jpg" alt="Contoh Gambar 3">
+            <h2>Apocalypse</h2>
+            <p><strong>Pembuat:</strong>Okiza</p>
+         </div>
+         <div class="image-item">
+            <img src="https://i.pinimg.com/564x/de/e6/8a/dee68a7c3cc1265f81b7e9f08a902c18.jpg" alt="Contoh Gambar 4">
+            <h2>city in puddles</h2>
+            <p><strong>Pembuat:</strong>Jizomitama</p>
+         </div>
+      </div>
+
+      <!-- Kotak hasil pencarian -->
+      <div class="result-box" id="searchResults">
+         <!-- Hasil pencarian akan ditambahkan secara dinamis di sini -->
+      </div>
+
+   </div>
+
+   <!-- Modal untuk menampilkan gambar -->
+   <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h5 class="modal-title" id="imageModalLabel">Gambar Pencarian</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               <img src="" id="modalImage" class="img-fluid" alt="Gambar Pencarian">
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Menambahkan skrip Bootstrap JS dan Popper.js -->
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+   <!-- Menambahkan jQuery -->
+   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+   <!-- Skrip JavaScript untuk interaksi dengan halaman -->
+   <script>
+      function resetPage() {
+         location.reload();
+      }
+
+      function toggleSidebar() {
+         var sidebar = document.getElementById("mySidebar");
+         if (sidebar.style.left === "-250px") {
+            sidebar.style.left = "0";
+         } else {
+            sidebar.style.left = "-250px";
+         }
+      }
+
+      $(document).ready(function () {
+         // Fungsi ketika tombol cari diklik
+         $('#searchButton').click(function () {
+            performSearch();
+         });
+
+         // Fungsi ketika tombol Enter ditekan pada input pencarian
+         $('#searchQuery').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+               performSearch();
+            }
+         });
+
+         function performSearch() {
+            var searchQuery = $('#searchQuery').val().trim();
+
+            // Periksa apakah kotak pencarian kosong
+            if (searchQuery === '') {
+               alert('Masukkan kata kunci untuk pencarian.');
+               return;
+            }
+
+            var apiUrl = 'http://127.0.0.1:8000/api/image/v1/search?q=' + encodeURIComponent(searchQuery);
+
+            // Lakukan permintaan AJAX ke API pencarian
+            $.ajax({
+               url: apiUrl,
+               type: 'GET',
+               success: function (data, status, xhr) {
+                  var imageBox = $('#imageBox');
+                  var resultBox = $('#searchResults');
+                  resultBox.html(''); // Hapus hasil pencarian yang sudah ada
+
+                  // Jika permintaan berhasil dan ada data
+                  if (xhr.status === 200 && data.success && data.data) {
+                    // Tambahkan kelas CSS untuk nonaktifkan image-box
+                    imageBox.removeClass('image-box-enabled').addClass('image-box-disabled');
+                 
+                    data.data.forEach(result => {
+                       // Tambahkan hasil pencarian ke kotak hasil
+                       var resultItem = $('<div class="result-item">');
+                       resultItem.html(`
+                          <img src="${result.link}" alt="${result.judul}" class="img-fluid clickable-image">
+                          <h2>${result.judul}</h2>
+                          <p><strong>Pembuat:</strong> ${result.pembuat}</p>
+                       `);
+                       resultBox.append(resultItem);
+                    });
+                 } else {
+                    // Handle the case when data is not found
+                    var resultBox = $('#searchResults');
+                    resultBox.html('<p>Data tidak ditemukan</p>');
+                    // Aktifkan kembali image-box jika hasil pencarian tidak ditemukan
+                    imageBox.removeClass('image-box-enabled').addClass('image-box-disabled');
+                 }
+               },
+            });
+         }
+
+         // Tambahkan listener untuk gambar di kotak hasil pencarian
+         $('#searchResults').on('click', '.clickable-image', function () {
+            var modalImage = $('#modalImage');
+            modalImage.attr('src', $(this).attr('src'));
+            // Tampilkan modal
+            $('#imageModal').modal('show');
+         });
+      });
+   </script>
+</body>
+
+</html>
